@@ -1,14 +1,19 @@
 package br.ufpe.cin.if710.podcast.ui.adapter;
 
-import java.util.List;
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.TextView;
+
+import java.util.List;
 
 import br.ufpe.cin.if710.podcast.R;
 import br.ufpe.cin.if710.podcast.domain.ItemFeed;
+import br.ufpe.cin.if710.podcast.download.DownloadService;
 
 public class XmlFeedAdapter extends ArrayAdapter<ItemFeed> {
 
@@ -49,22 +54,40 @@ public class XmlFeedAdapter extends ArrayAdapter<ItemFeed> {
     static class ViewHolder {
         TextView item_title;
         TextView item_date;
+        Button item_downloadLing;
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        ViewHolder holder;
+    public View getView( int position, View convertView, ViewGroup parent) {
+        final ViewHolder holder;
         if (convertView == null) {
             convertView = View.inflate(getContext(), linkResource, null);
             holder = new ViewHolder();
             holder.item_title = (TextView) convertView.findViewById(R.id.item_title);
             holder.item_date = (TextView) convertView.findViewById(R.id.item_date);
+            holder.item_downloadLing = (Button) convertView.findViewById(R.id.item_action);
             convertView.setTag(holder);
         } else {
             holder = (ViewHolder) convertView.getTag();
         }
         holder.item_title.setText(getItem(position).getTitle());
         holder.item_date.setText(getItem(position).getPubDate());
+
+        // Pegando link de download e para ser usado na implementação de click
+        // do botão baixar.
+        final String link = getItem(position).getDownloadLink();
+
+        holder.item_downloadLing.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                //holder.item_downloadLing.setEnabled(false);
+                Intent downloadService = new Intent( getContext(),DownloadService.class);
+                downloadService.setData(Uri.parse(link));
+                getContext().startService(downloadService);
+                //Toast.makeText(getContext(), link, Toast.LENGTH_SHORT).show();
+            }
+        });
         return convertView;
     }
 }

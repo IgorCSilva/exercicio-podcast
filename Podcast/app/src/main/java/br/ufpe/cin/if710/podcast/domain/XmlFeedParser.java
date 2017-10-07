@@ -21,8 +21,10 @@ public class XmlFeedParser {
 
     public static List<ItemFeed> readRss(XmlPullParser parser)
             throws XmlPullParserException, IOException {
+
         List<ItemFeed> items = new ArrayList<ItemFeed>();
         parser.require(XmlPullParser.START_TAG, null, "rss");
+
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) {
                 continue;
@@ -39,8 +41,11 @@ public class XmlFeedParser {
 
     public static List<ItemFeed> readChannel(XmlPullParser parser)
             throws IOException, XmlPullParserException {
+
         List<ItemFeed> items = new ArrayList<ItemFeed>();
+
         parser.require(XmlPullParser.START_TAG, null, "channel");
+
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) {
                 continue;
@@ -80,7 +85,8 @@ public class XmlFeedParser {
                 description = readData(parser, "description");
             }
             else if (name.equals("enclosure")) {
-                //TODO implementar resto do metodo para pegar atributo url da tag enclosure
+
+                // Link de download sendo pego.
                 downloadLink = readEnclosure(parser);
                 skip(parser);
             }
@@ -114,10 +120,15 @@ public class XmlFeedParser {
     // Processa tags do tipo <enclosure> para obter dados do episodio
     public static String readEnclosure(XmlPullParser parser)
             throws IOException, XmlPullParserException {
-        //parser.require(XmlPullParser.START_TAG, null, "enclosure");
-        String data = "implementar...";
-        //parser.require(XmlPullParser.END_TAG, null, "enclosure");
-        return data;
+
+       // parser.require(XmlPullParser.START_TAG, null, "enclosure");
+        // parser.require(XmlPullParser.END_TAG, null, "enclosure");
+
+        // Pegando link da tag enclosure, atributo url e salvando na variável
+        // downloadLink.
+        String downloadLink = parser.getAttributeValue(null, "url");
+
+        return downloadLink;
     }
 
 
