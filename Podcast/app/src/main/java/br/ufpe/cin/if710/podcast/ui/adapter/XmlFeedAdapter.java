@@ -1,7 +1,10 @@
 package br.ufpe.cin.if710.podcast.ui.adapter;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
@@ -15,11 +18,13 @@ import android.widget.Toast;
 import java.util.List;
 
 import br.ufpe.cin.if710.podcast.R;
+import br.ufpe.cin.if710.podcast.db.PodcastProviderContract;
 import br.ufpe.cin.if710.podcast.domain.ItemFeed;
 import br.ufpe.cin.if710.podcast.download.DownloadService;
 import br.ufpe.cin.if710.podcast.ui.EpisodeDetailActivity;
 import br.ufpe.cin.if710.podcast.ui.MainActivity;
 
+import static android.content.Context.CONTEXT_IGNORE_SECURITY;
 import static br.ufpe.cin.if710.podcast.download.DownloadService.DOWNLOAD_COMPLETE;
 
 public class XmlFeedAdapter extends ArrayAdapter<ItemFeed> {
@@ -66,7 +71,10 @@ public class XmlFeedAdapter extends ArrayAdapter<ItemFeed> {
         TextView item_title;
         TextView item_date;
         Button item_downloadLink;
+        MediaPlayer item_media;
     }
+
+    public static ViewHolder vh = null;
 
     @Override
     public View getView( final int position, View convertView, ViewGroup parent) {
@@ -92,8 +100,21 @@ public class XmlFeedAdapter extends ArrayAdapter<ItemFeed> {
         holder.item_title.setText(getItem(position).getTitle());
         holder.item_date.setText(getItem(position).getPubDate());
 
+
+
+
+
         final ItemFeed currentItem = getItem(position);
 
+        if(currentItem.getUri().isEmpty()){
+
+            holder.item_downloadLink.setText("baixar");
+        }else{
+
+            holder.item_downloadLink.setEnabled(true);
+            holder.item_downloadLink.setText("ouvir");
+          //  holder.item_downloadLink.setBackgroundColor(0xaa00aa22);
+        }
 
         // Teste para mudar o status do botão BAIXAR. (a implementação abaixo deve sair antes da atividade ser entregue)
         holder.item_date.setOnClickListener(new View.OnClickListener() {
@@ -121,20 +142,60 @@ public class XmlFeedAdapter extends ArrayAdapter<ItemFeed> {
         });
         /**/
 
+
         // Implementando o download ao clicar no botão BAIXAR.
         holder.item_downloadLink.setOnClickListener(new View.OnClickListener() {
+
             @Override
             public void onClick(View view) {
-            Log.d("IGOR", "Clicou em - " + currentItem.getTitle());
-            //holder.item_downloadLing.setEnabled(false);
-            Intent downloadService = new Intent( getContext(),DownloadService.class);
-            downloadService.putExtra("item", currentItem);
-            //downloadService.putExtra("context", MainActivity.class);
-            //downloadService.setData(Uri.parse(getItem(position).getDownloadLink()));
-            getContext().startService(downloadService);
+
+
+                if(holder.item_downloadLink.getText() == "ouvir" || holder.item_downloadLink.getText() == "cont." ){
+
+                    holder.item_downloadLink.setText("pause");
+
+                    holder.item_downloadLink.setBackgroundColor(0xaa0022aa);
+
+                    Log.d("IGOR", "Soltar o episódio");
+
+
+                    if(holder.item_media == null){
+                        Uri uri = Uri.parse(currentItem.getUri());
+                        holder.item_media = MediaPlayer.create(getContext(), uri);
+                        holder.item_media.setLooping(false);
+
+                    }
+
+                    holder.item_media.start();
+
+                }else if(holder.item_downloadLink.getText() == "pause"){
+
+                    holder.item_downloadLink.setBackgroundColor(0xaadd6611);
+                    holder.item_downloadLink.setText("cont.");
+                    holder.item_media.pause();
+                }else {
+
+                    Log.d("IGOR", "Clicou em - " + currentItem.getTitle());
+                    holder.item_downloadLink.setEnabled(false);
+                   // vh = holder;
+                    Intent downloadService = new Intent(getContext(), DownloadService.class);
+                    downloadService.putExtra("item", currentItem);
+                    //downloadService.putExtra("context", MainActivity.class);
+                    //downloadService.setData(Uri.parse(getItem(position).getDownloadLink()));
+                    getContext().startService(downloadService);
+
+                }
             }
         });
 
+
+
         return convertView;
     }
+
+   // public static void teste(){
+    //    Log.d("IGOR", "Entrou func teste");
+    //    vh.item_downloadLink.setText("ouvir");
+   //     vh.item_downloadLink.setEnabled(true);
+   // }
 }

@@ -36,6 +36,16 @@
             android:enabled="true"
             android:exported="true"
             />
+
+        <activity android:name=".mediaPlayer.MusicPlayerWithBindingActivity"></activity>
+
+        <service
+            android:name=".mediaPlayer.MusicPlayerWithBindingService"
+            android:enabled="true"
+            android:exported="true"
+            />
+
+        <activity android:name=".mediaPlayer.Teste"/>
     </application>
 
 </manifest>

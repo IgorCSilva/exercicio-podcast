@@ -1,6 +1,7 @@
 package br.ufpe.cin.if710.podcast.download;
 
 import android.app.IntentService;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -18,9 +19,11 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import br.ufpe.cin.if710.podcast.db.PodcastProviderContract;
 import br.ufpe.cin.if710.podcast.domain.ItemFeed;
 import br.ufpe.cin.if710.podcast.notifications.NotificationUtils;
 import br.ufpe.cin.if710.podcast.ui.MainActivity;
+import br.ufpe.cin.if710.podcast.ui.adapter.XmlFeedAdapter;
 
 import static br.ufpe.cin.if710.podcast.notifications.NotificationUtils.criarNotificacaoSimples;
 
@@ -39,6 +42,7 @@ public class DownloadService extends IntentService {
     @Override
     public void onHandleIntent(Intent i) {
         try {
+            Log.d("IGOR ","inicio" ); // diretório
             // Pegando item pela intent que o disparou.
             ItemFeed item = (ItemFeed) i.getSerializableExtra("item");
 
@@ -63,6 +67,7 @@ public class DownloadService extends IntentService {
             // Estabelecendo conexão com o link dado.
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
 
+            // Variável para escrever o arquivo baixado no diretório criado.
             FileOutputStream fileOutputStream = new FileOutputStream(output.getPath());
 
             // Caminhos completos do arquivo baixado.
@@ -86,6 +91,19 @@ public class DownloadService extends IntentService {
                 httpURLConnection.disconnect();
             }
 
+            // Assim que o download for concluido a uri do arquivo será salva no
+            // banco de dados, realizando a consulta pelo título do episódio.
+
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(PodcastProviderContract.EPISODE_URI, output.getPath());
+
+            getApplicationContext().getContentResolver().update(PodcastProviderContract.EPISODE_LIST_URI,contentValues,
+                    PodcastProviderContract.TITLE + "= \"" + item.getTitle() + "\"",
+                    null);
+
+           // XmlFeedAdapter.teste();
+
+
             // Criando ação para ser executado ao término do download.
             Intent intent = new Intent(DOWNLOAD_COMPLETE);
 
@@ -105,6 +123,6 @@ public class DownloadService extends IntentService {
     public void onDestroy() {
         super.onDestroy();
 
-            Toast.makeText(getApplicationContext(),"onDestroy() - Service", Toast.LENGTH_SHORT).show();
+           // Toast.makeText(getApplicationContext(),"onDestroy() - Service", Toast.LENGTH_SHORT).show();
     }
 }
