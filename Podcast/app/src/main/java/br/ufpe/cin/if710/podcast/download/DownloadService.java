@@ -43,13 +43,14 @@ public class DownloadService extends IntentService {
             ItemFeed item = (ItemFeed) i.getSerializableExtra("item");
 
             //checar se tem permissao... Android 6.0+
-            File root = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+            File root = new File(Environment.getExternalStorageDirectory() + "/Podcast");
             root.mkdirs();
 
             Log.d("IGOR ","" + root); // diretório
             Log.d("IGOR ","" + Uri.parse(item.getDownloadLink()).getLastPathSegment()); // Nome do arquivo.
 
-            File output = new File(root, Uri.parse(item.getDownloadLink()).getLastPathSegment());
+            // Alterando nome do arquivo para ser o título do episódio.
+            File output = new File(root, item.getTitle() + ".mp3");
 
             // Se o arquivo existe ele é destruído.
             if (output.exists()) {

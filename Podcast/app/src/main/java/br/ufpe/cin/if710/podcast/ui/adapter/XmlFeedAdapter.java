@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -93,6 +94,7 @@ public class XmlFeedAdapter extends ArrayAdapter<ItemFeed> {
 
         final ItemFeed currentItem = getItem(position);
 
+
         // Teste para mudar o status do botão BAIXAR. (a implementação abaixo deve sair antes da atividade ser entregue)
         holder.item_date.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -123,7 +125,7 @@ public class XmlFeedAdapter extends ArrayAdapter<ItemFeed> {
         holder.item_downloadLink.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+            Log.d("IGOR", "Clicou em - " + currentItem.getTitle());
             //holder.item_downloadLing.setEnabled(false);
             Intent downloadService = new Intent( getContext(),DownloadService.class);
             downloadService.putExtra("item", currentItem);

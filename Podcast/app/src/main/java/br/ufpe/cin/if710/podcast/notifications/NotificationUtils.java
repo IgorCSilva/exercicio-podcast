@@ -32,8 +32,6 @@ public class NotificationUtils {
         Intent resultIntent = new Intent(ctx, EpisodeDetailActivity.class);
         resultIntent.putExtra(EpisodeDetailActivity.ITEM_FEED, item);
 
-        // Fazendo com que ao clicar no botão voltar a partir da tela de detalhes o usuário
-        // vá para a tela inicial.
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(ctx);
         stackBuilder.addParentStack(MainActivity.class);
         stackBuilder.addNextIntent(resultIntent);
