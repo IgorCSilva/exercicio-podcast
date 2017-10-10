@@ -1,9 +1,15 @@
 package br.ufpe.cin.if710.podcast.db;
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.DatabaseErrorHandler;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+
+import java.util.List;
+
+import br.ufpe.cin.if710.podcast.domain.ItemFeed;
 
 public class PodcastDBHelper extends SQLiteOpenHelper {
 
@@ -18,9 +24,12 @@ public class PodcastDBHelper extends SQLiteOpenHelper {
     private static PodcastDBHelper db;
 
     public static PodcastDBHelper getInstance(Context c) {
+
         if (db==null) {
+
             db = new PodcastDBHelper(c.getApplicationContext());
         }
+
         return db;
     }
 
@@ -57,4 +66,6 @@ public class PodcastDBHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
         throw new RuntimeException("inutilizado");
     }
+
+
 }

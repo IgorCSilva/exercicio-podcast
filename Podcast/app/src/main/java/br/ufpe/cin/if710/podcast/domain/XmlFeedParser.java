@@ -61,6 +61,7 @@ public class XmlFeedParser {
     }
 
     public static ItemFeed readItem(XmlPullParser parser) throws XmlPullParserException, IOException {
+        int id = 0; // Id acrescentado por conta da notificação.
         String title = null;
         String link = null;
         String pubDate = null;
@@ -75,8 +76,8 @@ public class XmlFeedParser {
             if (name.equals("title")) {
                 title = readData(parser, "title");
             }
-            else if (name.equals("link")) {
-                link = readData(parser, "link");
+            else if (name.equals("guid")) {
+                link = readData(parser, "guid");
             }
             else if (name.equals("pubDate")) {
                 pubDate = readData(parser, "pubDate");
@@ -94,7 +95,7 @@ public class XmlFeedParser {
                 skip(parser);
             }
         }
-        ItemFeed result = new ItemFeed(title, link, pubDate, description, downloadLink);
+        ItemFeed result = new ItemFeed(id, title, link, pubDate, description, downloadLink);
         return result;
     }
 
@@ -121,7 +122,9 @@ public class XmlFeedParser {
     public static String readEnclosure(XmlPullParser parser)
             throws IOException, XmlPullParserException {
 
-       // parser.require(XmlPullParser.START_TAG, null, "enclosure");
+        // Precisa apena da tag inicial, já que enclosure é selfclose.
+        parser.require(XmlPullParser.START_TAG, null, "enclosure");
+
         // parser.require(XmlPullParser.END_TAG, null, "enclosure");
 
         // Pegando link da tag enclosure, atributo url e salvando na variável

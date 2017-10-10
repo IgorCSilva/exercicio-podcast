@@ -1,6 +1,9 @@
 package br.ufpe.cin.if710.podcast.domain;
 
-public class ItemFeed {
+import java.io.Serializable;
+
+public class ItemFeed implements Serializable {
+    private int id;
     private final String title;
     private final String link;
     private final String pubDate;
@@ -8,13 +11,18 @@ public class ItemFeed {
     private final String downloadLink;
 
 
-    public ItemFeed(String title, String link, String pubDate, String description, String downloadLink) {
+    public ItemFeed(int id, String title, String link, String pubDate, String description, String downloadLink) {
+        this.id = id;
         this.title = title;
         this.link = link;
         this.pubDate = pubDate;
         this.description = description;
         this.downloadLink = downloadLink;
     }
+
+
+    // Mètodo para retornar o valor do id do item.
+    public int getId() { return id;}
 
     public String getTitle() {
         return title;

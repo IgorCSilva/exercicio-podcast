@@ -3,25 +3,34 @@ package br.ufpe.cin.if710.podcast.ui.adapter;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.support.v4.content.LocalBroadcastManager;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.List;
 
 import br.ufpe.cin.if710.podcast.R;
 import br.ufpe.cin.if710.podcast.domain.ItemFeed;
 import br.ufpe.cin.if710.podcast.download.DownloadService;
+import br.ufpe.cin.if710.podcast.ui.EpisodeDetailActivity;
+import br.ufpe.cin.if710.podcast.ui.MainActivity;
+
+import static br.ufpe.cin.if710.podcast.download.DownloadService.DOWNLOAD_COMPLETE;
 
 public class XmlFeedAdapter extends ArrayAdapter<ItemFeed> {
 
     int linkResource;
+    Button itemButton;
+    Context context;
 
     public XmlFeedAdapter(Context context, int resource, List<ItemFeed> objects) {
         super(context, resource, objects);
         linkResource = resource;
+        this.context = context;
     }
 
     /**
@@ -52,42 +61,78 @@ public class XmlFeedAdapter extends ArrayAdapter<ItemFeed> {
 
     //http://developer.android.com/training/improving-layouts/smooth-scrolling.html#ViewHolder
     static class ViewHolder {
+
         TextView item_title;
         TextView item_date;
-        Button item_downloadLing;
+        Button item_downloadLink;
     }
 
     @Override
-    public View getView( int position, View convertView, ViewGroup parent) {
+    public View getView( final int position, View convertView, ViewGroup parent) {
+
         final ViewHolder holder;
+
         if (convertView == null) {
+
             convertView = View.inflate(getContext(), linkResource, null);
+
             holder = new ViewHolder();
+
             holder.item_title = (TextView) convertView.findViewById(R.id.item_title);
             holder.item_date = (TextView) convertView.findViewById(R.id.item_date);
-            holder.item_downloadLing = (Button) convertView.findViewById(R.id.item_action);
+            holder.item_downloadLink = (Button) convertView.findViewById(R.id.item_action);
+
             convertView.setTag(holder);
         } else {
+
             holder = (ViewHolder) convertView.getTag();
         }
+
         holder.item_title.setText(getItem(position).getTitle());
         holder.item_date.setText(getItem(position).getPubDate());
 
-        // Pegando link de download e para ser usado na implementação de click
-        // do botão baixar.
-        final String link = getItem(position).getDownloadLink();
+        final ItemFeed currentItem = getItem(position);
 
-        holder.item_downloadLing.setOnClickListener(new View.OnClickListener() {
+        // Teste para mudar o status do botão BAIXAR. (a implementação abaixo deve sair antes da atividade ser entregue)
+        holder.item_date.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent downloadComplete = new Intent(DOWNLOAD_COMPLETE);
+                downloadComplete.putExtra("position", position);
+                LocalBroadcastManager.getInstance(getContext()).sendBroadcast(downloadComplete);
+            }
+        });
+
+
+        // Implementação da chamada da tela de detalhes do episódio.
+        holder.item_title.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                //holder.item_downloadLing.setEnabled(false);
-                Intent downloadService = new Intent( getContext(),DownloadService.class);
-                downloadService.setData(Uri.parse(link));
-                getContext().startService(downloadService);
-                //Toast.makeText(getContext(), link, Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(getContext(), EpisodeDetailActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent.putExtra(EpisodeDetailActivity.ITEM_FEED, currentItem);
+                getContext().startActivity(intent);
+
+                Toast.makeText(getContext(), getItem(position).getTitle(), Toast.LENGTH_LONG).show();
             }
         });
+        /**/
+
+        // Implementando o download ao clicar no botão BAIXAR.
+        holder.item_downloadLink.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            //holder.item_downloadLing.setEnabled(false);
+            Intent downloadService = new Intent( getContext(),DownloadService.class);
+            downloadService.putExtra("item", currentItem);
+            //downloadService.putExtra("context", MainActivity.class);
+            //downloadService.setData(Uri.parse(getItem(position).getDownloadLink()));
+            getContext().startService(downloadService);
+            }
+        });
+
         return convertView;
     }
 }
